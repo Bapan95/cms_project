@@ -33,11 +33,14 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('comments', [CommentController::class, 'index'])->name('comments.index');
     Route::post('comments/{comment}/approve', [CommentController::class, 'approve'])->name('comments.approve');
     Route::delete('comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
+
+    // Admin can manage all aspects of articles
+    Route::resource('articles', ArticleController::class);
 });
 
 // Editor-specific routes
 Route::middleware(['auth', 'role:editor'])->group(function () {
-    // Editor can only manage articles (assuming they should not have the same routes as admin)
+    // Editor can manage articles (create, edit, update, and view)
     Route::resource('articles', ArticleController::class)->only(['index', 'show', 'create', 'store', 'edit', 'update']);
 });
 
@@ -51,6 +54,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('comments', [CommentController::class, 'store'])->name('comments.store');
 });
 
+
 Route::get('/test-role', function () {
     return 'This route is accessible.';
 })->middleware(['auth', 'role:admin,guest']);
@@ -58,4 +62,4 @@ Route::get('/test-role', function () {
 
 Route::get('/403', [ErrorController::class, 'forbidden'])->name('forbidden');
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
