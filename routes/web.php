@@ -6,6 +6,7 @@ use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
+// use app\Http\Middleware\RoleMiddleware;
 
 Route::get('/', function () {
     return view('welcome');
@@ -20,27 +21,6 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
-
-
-// Route::middleware(['role:admin'])->group(function () {
-//     Route::resource('categories', CategoryController::class);
-//     Route::resource('articles', ArticleController::class);
-//     Route::resource('users', UserController::class);
-//     Route::get('comments', [CommentController::class, 'index'])->name('comments.index');
-//     Route::post('comments/{comment}/approve', [CommentController::class, 'approve'])->name('comments.approve');
-// });
-
-
-// Route::middleware(['role:editor'])->group(function () {
-//     Route::resource('articles', ArticleController::class);
-// });
-
-// Route::middleware(['role:guest'])->group(function () {
-//     Route::get('articles', [ArticleController::class, 'index']);
-//     Route::post('comments', [CommentController::class, 'store']);
-// });
-
-// Route::resource('users', UserController::class)->middleware('auth', 'admin'); // Admin route to manage users
 
 
 // Admin-specific routes
@@ -69,5 +49,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('comments', [CommentController::class, 'store'])->name('comments.store');
 });
 
+Route::get('/test-role', function () {
+    return 'This route is accessible.';
+})->middleware(['auth', 'role:admin']);
 
 require __DIR__.'/auth.php';

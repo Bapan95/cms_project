@@ -1,10 +1,9 @@
 <x-app-layout>
-    <x-slot:title>
-        User Management
-    </x-slot:title>
-
-    <h1 class="text-2xl font-bold mb-4">User Management</h1>
-
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+            {{ __('Profile') }}
+        </h2>
+    </x-slot>
     <!-- Success Message -->
     @if (session('success'))
         <div class="mb-4 p-4 bg-green-500 text-white rounded">

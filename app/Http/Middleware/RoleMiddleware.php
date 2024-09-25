@@ -3,36 +3,23 @@
 namespace App\Http\Middleware;
 
 use Closure;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class RoleMiddleware
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
-     * @param  array  $roles
-     * @return mixed
-     */
-    public function handle(Request $request, Closure $next, ...$roles)
+    public function handle($request, Closure $next, $role)
     {
-        // Check if the user is authenticated
+        // Check if user is logged in
         if (!Auth::check()) {
-            return redirect()->route('login');
+            return redirect('/login');
         }
 
-        // Get the current user
+        // Check if the user has the required role
         $user = Auth::user();
-        // print_r($user);
-        // die;
-        // Check if the user role matches any of the required roles
-        if (in_array($user->role, $roles)) {
-            return $next($request); // User is allowed to proceed
+        if ($user->role !== $role) {
+            return redirect('/403'); // Redirect to 403 page or any other logic you prefer
         }
 
-        // If the user does not have permission, redirect or return a 403
-        return response()->view('errors.403', [], 403); // You can create a custom 403 error page
+        return $next($request);
     }
 }
