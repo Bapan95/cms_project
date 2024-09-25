@@ -7,17 +7,22 @@ use Illuminate\Support\Facades\Auth;
 
 class RoleMiddleware
 {
-    public function handle($request, Closure $next, $role)
+    public function handle($request, Closure $next, $roles)
     {
-        // Check if user is logged in
+        // Convert roles string to an array
+        $rolesArray = explode(',', $roles);
+
+        // Check if the user is logged in
         if (!Auth::check()) {
             return redirect('/login');
         }
 
-        // Check if the user has the required role
+        // Get the authenticated user
         $user = Auth::user();
-        if ($user->role !== $role) {
-            return redirect('/403'); // Redirect to 403 page or any other logic you prefer
+
+        // Check if the user has one of the roles
+        if (!in_array($user->role, $rolesArray)) {
+            return redirect()->route('forbidden'); // Redirect to 403 Forbidden page
         }
 
         return $next($request);

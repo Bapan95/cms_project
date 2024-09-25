@@ -5,6 +5,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ErrorController;
 use Illuminate\Support\Facades\Route;
 // use app\Http\Middleware\RoleMiddleware;
 
@@ -36,12 +37,13 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
 // Editor-specific routes
 Route::middleware(['auth', 'role:editor'])->group(function () {
-    Route::resource('articles', ArticleController::class);
+    // Editor can only manage articles (assuming they should not have the same routes as admin)
+    Route::resource('articles', ArticleController::class)->only(['index', 'show', 'create', 'store', 'edit', 'update']);
 });
 
 // Routes accessible to all authenticated users (admin, editor, and regular users)
 Route::middleware(['auth'])->group(function () {
-    // Viewing articles is accessible to all authenticated users, including guests
+    // Viewing articles is accessible to all authenticated users
     Route::get('articles', [ArticleController::class, 'index'])->name('articles.index');
     Route::get('articles/{article}', [ArticleController::class, 'show'])->name('articles.show');
 
@@ -51,6 +53,9 @@ Route::middleware(['auth'])->group(function () {
 
 Route::get('/test-role', function () {
     return 'This route is accessible.';
-})->middleware(['auth', 'role:admin']);
+})->middleware(['auth', 'role:admin,guest']);
+
+
+Route::get('/403', [ErrorController::class, 'forbidden'])->name('forbidden');
 
 require __DIR__.'/auth.php';
