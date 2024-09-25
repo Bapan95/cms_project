@@ -43,22 +43,31 @@ Route::middleware('auth')->group(function () {
 // Route::resource('users', UserController::class)->middleware('auth', 'admin'); // Admin route to manage users
 
 
-// Middleware for role-based access control
-// Route::middleware(['auth', 'role:admin'])->group(function () {
+// Admin-specific routes
+Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::resource('categories', CategoryController::class);
     Route::resource('users', UserController::class);
+
+    // Comment management for admin
     Route::get('comments', [CommentController::class, 'index'])->name('comments.index');
     Route::post('comments/{comment}/approve', [CommentController::class, 'approve'])->name('comments.approve');
-    Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
-// });
+    Route::delete('comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
+});
 
-// Route::middleware(['auth', 'role:editor'])->group(function () {
+// Editor-specific routes
+Route::middleware(['auth', 'role:editor'])->group(function () {
     Route::resource('articles', ArticleController::class);
-// });
+});
 
-// Regular users (Guests) can only view articles
-Route::get('articles', [ArticleController::class, 'index'])->name('articles.index');
-Route::get('articles/{article}', [ArticleController::class, 'show'])->name('articles.show');
-Route::post('comments', [CommentController::class, 'store'])->name('comments.store');
+// Routes accessible to all authenticated users (admin, editor, and regular users)
+Route::middleware(['auth'])->group(function () {
+    // Viewing articles is accessible to all authenticated users, including guests
+    Route::get('articles', [ArticleController::class, 'index'])->name('articles.index');
+    Route::get('articles/{article}', [ArticleController::class, 'show'])->name('articles.show');
+
+    // Posting comments for authenticated users
+    Route::post('comments', [CommentController::class, 'store'])->name('comments.store');
+});
+
 
 require __DIR__.'/auth.php';
