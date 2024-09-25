@@ -11,7 +11,8 @@ class RoleMiddleware
     {
         // Convert roles string to an array
         $rolesArray = explode(',', $roles);
-
+        // print_r(Auth::user());
+        // die();
         // Check if the user is logged in
         if (!Auth::check()) {
             return redirect('/login');
