@@ -29,34 +29,57 @@ class ArticleController extends Controller
         return redirect()->route('articles.index');
     }
 
-    public function show(Article $article)
-{
-    // Load the comments with the associated user
-    $article->load('comments.user');
-
-    // Return the view with the article and its comments
-    return view('articles.show', [
-        'article' => $article,
-    ]);
-}
-
-
-    public function edit(Article $article)
+    public function show($article)
     {
+        // Use Eloquent query with relationships to retrieve the article with comments and users
+        $articleWithComments = Article::with(['comments.user'])
+            ->where('id', $article)
+            ->firstOrFail();
+
+        // Return the view with the article and its comments
+        return view('articles.show', [
+            'article' => $articleWithComments,
+        ]);
+    }
+
+    public function edit($id)
+    {
+        // Retrieve the article by its id
+        $article = Article::findOrFail($id);
+
+        // Retrieve all categories
         $categories = Category::all();
+
+        // Pass the article and categories to the view
         return view('articles.edit', compact('article', 'categories'));
     }
 
-    public function update(Request $request, Article $article)
+    public function update(Request $request, $id)
     {
-        $request->validate(['title' => 'required', 'content' => 'required']);
-        $article->update($request->all());
-        return redirect()->route('articles.index');
-    }
+        // Validate the request data
+        $request->validate([
+            'title' => 'required',
+            'content' => 'required',
+        ]);
 
-    public function destroy(Article $article)
+        // Retrieve the article by its ID
+        $article = Article::findOrFail($id);
+
+        // Update the article with the request data
+        $article->update($request->all());
+
+        // Redirect to the articles index
+        return redirect()->route('articles.index')->with('success', 'Article updated successfully.');
+    }
+    public function destroy($id)
     {
+        // Retrieve the article by its ID
+        $article = Article::findOrFail($id);
+
+        // Delete the article
         $article->delete();
-        return redirect()->route('articles.index');
+
+        // Redirect to the articles index
+        return redirect()->route('articles.index')->with('success', 'Article deleted successfully.');
     }
 }

@@ -6,8 +6,8 @@
 
     <x-slot:header>
         <h1 class="text-2xl font-bold mb-4">{{ $article->title }}</h1>
-        <p>Category: {{ $article->category->name }}</p>
-        <p>Written by {{ $article->user->name }}</p>
+        <p>Category: {{ $article->category->name ?? '-' }}</p>
+        <p>Written by {{ $article->user->name ?? '-' }}</p>
     </x-slot:header>
 
     <div class="mb-6">
@@ -20,7 +20,7 @@
         @foreach ($article->comments as $comment)
             @if ($comment->approved)
                 <li class="mb-4">
-                    <strong>{{ $comment->user->name }}:</strong> {{ $comment->content }}
+                    <strong>{{ $comment->user->name ?? '-' }}:</strong> {{ $comment->content }}
                 </li>
             @endif
         @endforeach
