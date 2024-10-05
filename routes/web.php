@@ -38,22 +38,67 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::delete('comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
 });
 
-// Editor-specific routes (list, create, edit, show articles, no delete)
-Route::middleware(['auth', 'role:admin,editor'])->group(function () {
-    Route::get('/articles', [ArticleController::class, 'index'])->name('articles.index');
-    Route::get('/articles/create', [ArticleController::class, 'create'])->name('articles.create');
-    Route::post('/articles', [ArticleController::class, 'store'])->name('articles.store');
-    Route::get('/articles/{id}', [ArticleController::class, 'show'])->name('articles.show');
-    Route::get('/articles/{id}/edit', [ArticleController::class, 'edit'])->name('articles.edit');
-    Route::put('/articles/{id}', [ArticleController::class, 'update'])->name('articles.update');
-});
-
 // Guest-specific routes (only view articles and add comments)
 Route::middleware(['auth'])->group(function () {
-    // Viewing articles is accessible to all authenticated users
-    Route::get('/articles', [ArticleController::class, 'index'])->name('articles.index');
-    Route::get('/articles/{id}', [ArticleController::class, 'show'])->name('articles.show'); // Remove from role-specific groups
     Route::post('comments', [CommentController::class, 'store'])->name('comments.store');
+});
+
+
+
+Route::group(['middleware' => ['auth']], function () {
+    // all can access article index and show pages
+    Route::get('/articles', function() {
+        if (Auth::user()->role == 'admin' || Auth::user()->role == 'editor' || Auth::user()->role == 'guest') {
+            return app(ArticleController::class)->index();
+        }
+        return redirect()->route('forbidden');
+    })->name('articles.index');
+
+     // Admin and Editor can create new articles
+     Route::get('/articles/create', function() {
+        if (Auth::user()->role == 'admin' || Auth::user()->role == 'editor') {
+            return app(ArticleController::class)->create();
+        }
+        return redirect()->route('forbidden');
+    })->name('articles.create');
+
+    Route::post('/articles', function() {
+        if (Auth::user()->role == 'admin' || Auth::user()->role == 'editor') {
+            return app(ArticleController::class)->store(request());
+        }
+        return redirect()->route('forbidden');
+    })->name('articles.store');
+
+    // all can view articles and show pages
+    Route::get('/articles/{id}', function($id) {
+        if (Auth::user()->role == 'admin' || Auth::user()->role == 'editor' || Auth::user()->role == 'guest') {
+            return app(ArticleController::class)->show($id);
+        }
+        return redirect()->route('forbidden');
+    })->name('articles.show');
+
+    // Admin and Editor can edit articles
+    Route::get('/articles/{id}/edit', function($id) {
+        if (Auth::user()->role == 'admin' || Auth::user()->role == 'editor') {
+            return app(ArticleController::class)->edit($id);
+        }
+        return redirect()->route('forbidden');
+    })->name('articles.edit');
+
+    Route::put('/articles/{id}', function($id) {
+        if (Auth::user()->role == 'admin' || Auth::user()->role == 'editor') {
+            return app(ArticleController::class)->update(request(), $id);
+        }
+        return redirect()->route('forbidden');
+    })->name('articles.update');
+
+    // Only Admin can delete articles
+    Route::delete('/articles/{id}', function($id) {
+        if (Auth::user()->role == 'admin') {
+            return app(ArticleController::class)->destroy($id);
+        }
+        return redirect()->route('forbidden');
+    })->name('articles.destroy');
 });
 
 // Custom forbidden route
