@@ -500,13 +500,11 @@ function convertAmountToWords($amount)
         });
 
         const bottomMargin = 10; // Define the bottom margin
-        const autoTableCellWidth = 'auto'; // Set the cell width to 'auto'
-
         // Add the first section of your table with invoice details
         doc.autoTable({
             startY: 20, // Start the first table 20mm from the top of the page
             html: '#invoiceTable_1',
-            theme: 'grid',
+            // theme: 'grid',
             styles: {
                 fontSize: 10,
                 cellPadding: 2,
@@ -516,25 +514,69 @@ function convertAmountToWords($amount)
             },
             columnStyles: {
                 0: {
-                    cellWidth: autoTableCellWidth,
-                }, // Adjust based on your content
+                    cellWidth: 'auto'
+                }, // Let columns adjust width automatically
                 1: {
-                    cellWidth: 25,
-                }, // Adjust based on your content
+                    cellWidth: 'auto'
+                },
                 2: {
-                    cellWidth: 25,
-                }, // Adjust based on your content
+                    cellWidth: 'auto'
+                },
+                3: {
+                    cellWidth: 'auto'
+                },
+                4: {
+                    cellWidth: 'auto'
+                },
+                5: {
+                    cellWidth: 'auto'
+                },
+                6: {
+                    cellWidth: 'auto'
+                },
+                7: {
+                    cellWidth: 'auto'
+                },
+                8: {
+                    cellWidth: 'auto'
+                },
+                9: {
+                    cellWidth: 'auto'
+                }
             },
+            headStyles: {
+                fontSize: 10, // Adjust header font size
+                fillColor: [52, 58, 64], // Dark background color for headers
+                textColor: [255, 255, 255] // White text color for headers
+            },
+            bodyStyles: {
+                fontSize: 8, // Smaller font for body cells
+            },
+            theme: 'striped', // Use striped theme for alternate row colors
+            showHead: 'everyPage', // Show the header on every page
+            margin: {
+                top: 20
+            }, // Add margin to avoid text overlap
+            pageBreak: 'auto',
             didParseCell: function(data) {
                 // Increase font size and boldness for the first row (header)
                 if (data.row.index === 0) {
                     data.cell.styles.fontSize = 20; // Larger font size for the header row
-                    data.cell.styles.fontWeight = '900'; // Bold text for the header row
+                    data.cell.styles.fontStyle = 'bold'; // Bold text for the header row
                 }
-
-                // Set smaller row height for the second row
                 if (data.row.index === 1) {
-                    data.cell.styles.minCellHeight = 1; // Decrease row height for the second row
+                    data.cell.styles.fontSize = 10; // Larger font size for the header row
+                    data.cell.styles.fontStyle = 'bold'; // Bold text for the header row
+                }
+                if (data.row.index === 2) {
+                    data.cell.styles.fontSize = 10; // Custom font size for the entire row at index 4
+                    const equalWidth = doc.internal.pageSize.getWidth() / data.table.columns.length - 20; // Adjust based on margins
+                    data.cell.styles.cellWidth = equalWidth;
+                    if (data.column.index === 0) {
+                        data.cell.styles.halign = 'left'; // Left align this specific cell in column 0
+                    } else {
+                        data.cell.styles.halign = 'left'; // Right align this specific cell in column 1
+                    }
                 }
                 if (data.row.index === 6) {
                     data.cell.styles.fontSize = 20; // Larger font size for the header row
@@ -542,10 +584,26 @@ function convertAmountToWords($amount)
                     data.cell.styles.fillColor = [0, 0, 255]; // Blue background for the header row
                     data.cell.styles.textColor = [255, 255, 255]; // White text color
                 }
-
+                if (data.row.index === 3) {
+                    data.cell.styles.fontSize = 10; // Custom font size for the entire row at index 4
+                    const equalWidth = doc.internal.pageSize.getWidth() / data.table.columns.length - 20; // Adjust based on margins
+                    data.cell.styles.cellWidth = equalWidth;
+                    if (data.column.index === 0) {
+                        data.cell.styles.halign = 'left'; // Left align this specific cell in column 0
+                    } else {
+                        data.cell.styles.halign = 'left'; // Right align this specific cell in column 1
+                    }
+                }
+                if (data.row.index === 4) {
+                    data.cell.styles.fontSize = 10; // Custom font size for the entire row at index 4
+                    if (data.column.index === 0) {
+                        data.cell.styles.halign = 'left'; // Left align this specific cell in column 0
+                    } else {
+                        data.cell.styles.halign = 'right'; // Right align this specific cell in column 1
+                    }
+                }
             }
         });
-
         // Add the second table
         doc.autoTable({
             startY: doc.lastAutoTable.finalY,
@@ -562,14 +620,20 @@ function convertAmountToWords($amount)
             columnStyles: {
                 0: {
                     halign: 'left', // First column left-aligned
-                    cellWidth: autoTableCellWidth,
+                    cellWidth: 'auto',
                 },
                 1: {
                     halign: 'right', // Second column right-aligned
-                    cellWidth: autoTableCellWidth,
+                    cellWidth: 'auto',
                     valign: 'bottom', // Align the content slightly lower
                 },
             },
+            theme: 'striped', // Use striped theme for alternate row colors
+            showHead: 'everyPage', // Show the header on every page
+            margin: {
+                top: 20
+            }, // Add margin to avoid text overlap
+            pageBreak: 'auto',
         });
 
         // Check if the content exceeds the page height
